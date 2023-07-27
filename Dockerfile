@@ -27,16 +27,11 @@ WORKDIR ${HOME}
 VOLUME  ${HOME}/biodata
 VOLUME  ${HOME}/storage/export
 
-
-#ENV MODEL_DIR=/home/jovyan/my-model
-#ENV MODEL_FILE_LDA=clf_lda.joblib
-#ENV MODEL_FILE_NN=clf_nn.joblib
-#ENV OUTPUT_PATH=/home/jovyan/my-data
-
 RUN pip install joblib
 
-#COPY train.csv ./train.csv
-#COPY test.csv ./test.csv
+ENV OMIZU_PATH ${HOME}/storage/export/Omizunagidori
+ENV UMINEKO_PATH ${HOME}/storage/export/Umineko
+ENV BIODATA_PATH ${HOME}/biodata
+ENV LABELS_PATH ${HOME}/biodata/database/labels
+ENV CSVWRITE_PATH ${HOME}/biodata/database/csv
 
-#COPY train.py ./train.py
-#COPY inference.py ./inference.py
