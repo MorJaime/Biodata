@@ -39,24 +39,20 @@ from IPython.display import display
 
 OMIZU_PATH = os.environ["OMIZU_PATH"]
 UMINEKO_PATH = os.environ["UMINEKO_PATH"]
-label_path_o = os.path.join(OMIZU_PATH,'labels')
-print(label_path_o)
-label_path_u = os.path.join(UMINEKO_PATH,'labels')
-print(label_path_u)
 
-label_omizu2018 = os.path.join(label_path_o,'Omizunagidori2018_labels_20230719_180351.xml')
-label_omizu2019 = os.path.join(label_path_o,'Omizunagidori2019_labels_20230719_180404.xml')
-label_omizu2020 = os.path.join(label_path_o,'Omizunagidori2020_labels_20230719_180417.xml')
-label_omizu2021 = os.path.join(label_path_o,'Omizunagidori2021_labels_20230719_180425.xml')
-label_omizu2022 = os.path.join(label_path_o,'Omizunagidori2022_labels_20230719_180438.xml')
+#label_omizu2018 = os.path.join(label_path_o,'Omizunagidori2018_labels_20230719_180351.xml')
+#label_omizu2019 = os.path.join(label_path_o,'Omizunagidori2019_labels_20230719_180404.xml')
+#label_omizu2020 = os.path.join(label_path_o,'Omizunagidori2020_labels_20230719_180417.xml')
+#label_omizu2021 = os.path.join(label_path_o,'Omizunagidori2021_labels_20230719_180425.xml')
+#label_omizu2022 = os.path.join(label_path_o,'Omizunagidori2022_labels_20230719_180438.xml')
 
-label_paths_o = [label_omizu2018,label_omizu2019,label_omizu2020,label_omizu2021,label_omizu2022]
+#label_paths_o = [label_omizu2018,label_omizu2019,label_omizu2020,label_omizu2021,label_omizu2022]
 
-label_umineko2018 = os.path.join(label_path_u,'Umineko2018_labels_20230719_193014.xml')
-label_umineko2019 = os.path.join(label_path_u,'Umineko2019_labels_20230719_193024.xml')
-label_umineko2022 = os.path.join(label_path_u,'Umineko2022_labels_20230719_193039.xml')
+#label_umineko2018 = os.path.join(label_path_u,'Umineko2018_labels_20230719_193014.xml')
+#label_umineko2019 = os.path.join(label_path_u,'Umineko2019_labels_20230719_193024.xml')
+#label_umineko2022 = os.path.join(label_path_u,'Umineko2022_labels_20230719_193039.xml')
 
-label_paths_u = [label_umineko2018,label_umineko2019,label_umineko2022]
+#label_paths_u = [label_umineko2018,label_umineko2019,label_umineko2022]
 
 def make_labels(paths, label_wr_dir = '/home/bob/biodata/database/labels', fn_end = 17):
     
@@ -89,3 +85,28 @@ def make_labels(paths, label_wr_dir = '/home/bob/biodata/database/labels', fn_en
         print('created labels for >>> ',filename)
         
     return
+
+def find_csv_filenames( path_to_dir, suffix=".csv" ):
+    filenames = os.listdir(path_to_dir)
+    return [ filename for filename in filenames if filename.endswith( suffix ) ]
+
+def main(args):
+    outdir = args['out_dir']
+    label_path_o = os.path.join(OMIZU_PATH,'labels')
+    print(label_path_o)
+    label_path_u = os.path.join(UMINEKO_PATH,'labels')
+    print(label_path_u)
+
+    label_paths_o = find_csv_filenames(label_path_o, label_wr_dir = outdir, suffix=".csv" )
+    label_paths_u = find_csv_filenames(label_path_u, label_wr_dir = outdir, suffix=".csv" )
+
+    make_labels(label_paths_o, fn_end = 17)
+    make_labels(label_paths_u, fn_end = 11)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-o', '--out-dir', help="Path to the output directory", required=True)
+
+    args = vars(parser.parse_args())
+    main(args)
