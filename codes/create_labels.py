@@ -1,58 +1,15 @@
 import os
-import glob
-import math
-import pandas as pd
-import numpy as np
-import itertools
-import random
-import requests
 import xml.etree.ElementTree as ET
 import csv
-
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import matplotlib.patches as patches
-
-import tensorflow as tf
-from tensorflow import keras
-from keras import backend as K
-#from keras.utils import np_utils
-#from keras.utils.vis_utils import model_to_dot
-#from keras.callbacks import EarlyStopping
-from IPython.display import SVG
-
-#import tensorflow_probability as tfp
-
-
-from sklearn.metrics import classification_report, confusion_matrix
-from sklearn import preprocessing
-from sklearn.preprocessing import LabelBinarizer, MultiLabelBinarizer, normalize
-from sklearn.preprocessing import MinMaxScaler
+import sys
+import argparse
 import warnings
 
 warnings.filterwarnings('ignore')
 
-from ipywidgets import FloatProgress
-from IPython.display import display
-
-#Label paths (Relative)
 
 OMIZU_PATH = os.environ["OMIZU_PATH"]
 UMINEKO_PATH = os.environ["UMINEKO_PATH"]
-
-#label_omizu2018 = os.path.join(label_path_o,'Omizunagidori2018_labels_20230719_180351.xml')
-#label_omizu2019 = os.path.join(label_path_o,'Omizunagidori2019_labels_20230719_180404.xml')
-#label_omizu2020 = os.path.join(label_path_o,'Omizunagidori2020_labels_20230719_180417.xml')
-#label_omizu2021 = os.path.join(label_path_o,'Omizunagidori2021_labels_20230719_180425.xml')
-#label_omizu2022 = os.path.join(label_path_o,'Omizunagidori2022_labels_20230719_180438.xml')
-
-#label_paths_o = [label_omizu2018,label_omizu2019,label_omizu2020,label_omizu2021,label_omizu2022]
-
-#label_umineko2018 = os.path.join(label_path_u,'Umineko2018_labels_20230719_193014.xml')
-#label_umineko2019 = os.path.join(label_path_u,'Umineko2019_labels_20230719_193024.xml')
-#label_umineko2022 = os.path.join(label_path_u,'Umineko2022_labels_20230719_193039.xml')
-
-#label_paths_u = [label_umineko2018,label_umineko2019,label_umineko2022]
 
 def make_labels(paths, label_wr_dir = '/home/bob/biodata/database/labels', fn_end = 17):
     
@@ -86,22 +43,24 @@ def make_labels(paths, label_wr_dir = '/home/bob/biodata/database/labels', fn_en
         
     return
 
-def find_csv_filenames( path_to_dir, suffix=".csv" ):
+def find_xml_filenames( path_to_dir, suffix=".xml" ):
     filenames = os.listdir(path_to_dir)
-    return [ filename for filename in filenames if filename.endswith( suffix ) ]
+    filepaths = []
+    for filename in filenames:
+        if filename.endswith( suffix ):
+            filepaths.append(os.path.join(path_to_dir,filename))
+    return filepaths
 
 def main(args):
     outdir = args['out_dir']
     label_path_o = os.path.join(OMIZU_PATH,'labels')
-    print(label_path_o)
     label_path_u = os.path.join(UMINEKO_PATH,'labels')
-    print(label_path_u)
 
-    label_paths_o = find_csv_filenames(label_path_o, label_wr_dir = outdir, suffix=".csv" )
-    label_paths_u = find_csv_filenames(label_path_u, label_wr_dir = outdir, suffix=".csv" )
+    label_paths_o = find_xml_filenames(label_path_o)
+    label_paths_u = find_xml_filenames(label_path_u)
 
-    make_labels(label_paths_o, fn_end = 17)
-    make_labels(label_paths_u, fn_end = 11)
+    make_labels(label_paths_o, label_wr_dir = outdir, fn_end = 17)
+    make_labels(label_paths_u, label_wr_dir = outdir, fn_end = 11)
 
 
 if __name__ == '__main__':

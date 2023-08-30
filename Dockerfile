@@ -25,7 +25,7 @@ ENV PATH ${PATH}:/home/bob/.local/bin
 USER bob
 WORKDIR ${HOME}
 VOLUME  ${HOME}/biodata
-VOLUME  ${HOME}/storage/export
+VOLUME  ${HOME}/storage
 
 RUN pip install joblib
 
