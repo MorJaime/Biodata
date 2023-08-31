@@ -7,11 +7,11 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-
 OMIZU_PATH = os.environ["OMIZU_PATH"]
 UMINEKO_PATH = os.environ["UMINEKO_PATH"]
+LABELS_PATH = os.environ["LABELS_PATH"]
 
-def make_labels(paths, label_wr_dir = '/home/bob/biodata/database/labels', fn_end = 17):
+def make_labels(paths, label_wr_dir = '/home/bob/storage/database/labels', fn_end = 17):
     
     for path in paths:
         label_path = path
@@ -43,7 +43,7 @@ def make_labels(paths, label_wr_dir = '/home/bob/biodata/database/labels', fn_en
         
     return
 
-def find_xml_filenames( path_to_dir, suffix=".xml" ):
+def find_xml_filenames(path_to_dir, suffix=".xml"):
     filenames = os.listdir(path_to_dir)
     filepaths = []
     for filename in filenames:
@@ -52,20 +52,25 @@ def find_xml_filenames( path_to_dir, suffix=".xml" ):
     return filepaths
 
 def main(args):
-    outdir = args['out_dir']
+    outdir = str(args['out_dir'])
     label_path_o = os.path.join(OMIZU_PATH,'labels')
     label_path_u = os.path.join(UMINEKO_PATH,'labels')
-
+    
+    if outdir == "None":
+        wrdir = LABELS_PATH
+        print(wrdir)
+    else:
+        wrdir = outdir
+    
     label_paths_o = find_xml_filenames(label_path_o)
     label_paths_u = find_xml_filenames(label_path_u)
 
-    make_labels(label_paths_o, label_wr_dir = outdir, fn_end = 17)
-    make_labels(label_paths_u, label_wr_dir = outdir, fn_end = 11)
-
+    make_labels(label_paths_o, label_wr_dir = wrdir, fn_end = 17)
+    make_labels(label_paths_u, label_wr_dir = wrdir, fn_end = 11)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-o', '--out-dir', help="Path to the output directory", required=True)
+    parser.add_argument('-o', '--out-dir', help="Path to the output directory")
 
     args = vars(parser.parse_args())
     main(args)

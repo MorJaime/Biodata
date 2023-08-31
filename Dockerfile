@@ -32,6 +32,6 @@ RUN pip install joblib
 ENV OMIZU_PATH ${HOME}/storage/export/Omizunagidori
 ENV UMINEKO_PATH ${HOME}/storage/export/Umineko
 ENV BIODATA_PATH ${HOME}/biodata
-ENV LABELS_PATH ${HOME}/biodata/database/labels
-ENV CSVWRITE_PATH ${HOME}/biodata/database/csv
+ENV LABELS_PATH ${HOME}/storage/database/labels
+ENV CSVWRITE_PATH ${HOME}/storage/database
 
