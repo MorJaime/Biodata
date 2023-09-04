@@ -110,7 +110,7 @@ def join_by_year(read_dir):
     all_bird_df.to_csv(os.path.join(read_dir, 'all_bird_df_Y' + os.path.split(read_dir)[-1] +'_WL.csv'),index=False)
     
     labels = list(all_bird_df.drop_duplicates(subset=['label'],keep = 'first')['label'])
-    print('labels' + os.path.split(read_dir)[-1]+':')
+    print('labels_' + os.path.split(read_dir)[-1]+':')
     print(labels)
     return all_bird_df
 
@@ -125,10 +125,10 @@ def main(args):
         outdir = CSVWRITE_PATH
     
     if bird == 'omizunagidori' or bird == 'O':
-        save_folder = os.path.join(outdir, 'Omizunagidori', year)
+        save_folder = os.path.join(outdir, 'omizunagidori', year)
         raw_paths = find_csv_filenames(raw_path_o, suffix = ".csv", year = year)
     else:
-        save_folder = os.path.join(outdir, 'Umineko', year)
+        save_folder = os.path.join(outdir, 'umineko', year)
         raw_paths = find_csv_filenames(raw_path_u, suffix=".csv", year = year)
     
     for path in raw_paths:
