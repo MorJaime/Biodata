@@ -29,9 +29,10 @@ VOLUME  ${HOME}/storage
 
 RUN pip install joblib
 
+ENV BIODATA_PATH ${HOME}/biodata
 ENV OMIZU_PATH ${HOME}/storage/export/Omizunagidori
 ENV UMINEKO_PATH ${HOME}/storage/export/Umineko
-ENV BIODATA_PATH ${HOME}/biodata
-ENV LABELS_PATH ${HOME}/storage/database/labels
 ENV CSVWRITE_PATH ${HOME}/storage/database
-
+ENV LABELS_PATH ${HOME}/storage/database/labels
+ENV O_WRITE_PATH ${HOME}/storage/database/omizunagidori
+ENV U_WRITE_PATH ${HOME}/storage/database/umineko

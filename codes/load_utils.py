@@ -20,6 +20,7 @@ from keras.utils import np_utils
 from keras.utils.vis_utils import model_to_dot
 from keras.callbacks import EarlyStopping
 from IPython.display import SVG
+from logging import getLogger
 
 #import tensorflow_probability as tfp
 
@@ -31,6 +32,7 @@ from sklearn.preprocessing import MinMaxScaler
 import warnings
 
 warnings.filterwarnings('ignore')
+logger = getLogger(__name__)
 
 def time_change(acc_df):
     df=acc_df['timestamp']
@@ -54,3 +56,28 @@ def setup_dir(path: str):
             logger.info(f"Created Dir: {path}")
 
     return
+
+def find_xml_filenames(path_to_dir, suffix=".xml"):
+    filenames = os.listdir(path_to_dir)
+    filepaths = []
+    for filename in filenames:
+        if filename.endswith( suffix ):
+            filepaths.append(os.path.join(path_to_dir,filename))
+    return filepaths
+
+def find_csv_filenames(path_to_dir, suffix=".csv", year = '2022'):
+    filenames = os.listdir(path_to_dir)
+    filepaths = []
+    for filename in filenames:
+        if filename.endswith( suffix ):
+            if filename.__contains__(year):
+                filepaths.append(os.path.join(path_to_dir,filename))
+    return filepaths
+
+def get_activity_index(act_dict):
+    labels = []
+    indices = []
+    for k,v in act_dict.items():
+        indices.append(k)
+        labels.append(v)
+    return labels, indices
