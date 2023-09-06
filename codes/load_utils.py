@@ -81,3 +81,19 @@ def get_activity_index(act_dict):
         indices.append(k)
         labels.append(v)
     return labels, indices
+
+def num_labels(acc_df,lab):
+    
+    new_df=acc_df
+    new_df['l_val']=100
+
+    i=0
+    for a in lab.label:
+        #print(a,':')
+        new_df.loc[new_df['label'] == a, 'l_val'] = i
+        #print(new_df)
+        i=i+1
+    
+    new_df.fillna(100,inplace=True)   
+    
+    return new_df
