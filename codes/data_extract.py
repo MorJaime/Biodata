@@ -36,11 +36,17 @@ warnings.filterwarnings('ignore')
 from ipywidgets import FloatProgress
 from IPython.display import display
 
+from load_utils import num_labels, time_change, setup_dir, find_xml_filenames, find_csv_filenames
+
 #Label paths (Relative)
 
+BIODATA_PATH = os.environ['BIODATA_PATH']
 OMIZU_PATH = os.environ["OMIZU_PATH"]
 UMINEKO_PATH = os.environ["UMINEKO_PATH"]
-CSVWRITE_PATH = os.environ["CSVWRITE_PATH"]
+CSVWRITE_PATH = os.environ['CSVWRITE_PATH']
+LABELS_PATH = os.environ["LABELS_PATH"]
+O_WRITE_PATH = os.environ['O_WRITE_PATH']
+U_WRITE_PATH = os.environ['U_WRITE_PATH ']
 
 def find_csv_filenames(path_to_dir, suffix=".csv", year = '2022'):
     filenames = os.listdir(path_to_dir)

@@ -5,11 +5,17 @@ import sys
 import argparse
 import warnings
 
+from load_utils import num_labels, time_change, setup_dir, find_xml_filenames, find_csv_filenames
+
 warnings.filterwarnings('ignore')
 
+BIODATA_PATH = os.environ['BIODATA_PATH']
 OMIZU_PATH = os.environ["OMIZU_PATH"]
 UMINEKO_PATH = os.environ["UMINEKO_PATH"]
+CSVWRITE_PATH = os.environ['CSVWRITE_PATH']
 LABELS_PATH = os.environ["LABELS_PATH"]
+O_WRITE_PATH = os.environ['O_WRITE_PATH']
+U_WRITE_PATH = os.environ['U_WRITE_PATH ']
 
 def make_labels(paths, label_wr_dir = '/home/bob/storage/database/labels', fn_end = 17):
     
