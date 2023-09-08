@@ -1,4 +1,4 @@
-FROM jupyter/tensorflow-notebook
+FROM tensorflow/tensorflow:latest
 
 USER root
 RUN apt update && apt-get install -y \
