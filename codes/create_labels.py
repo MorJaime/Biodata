@@ -1,9 +1,36 @@
 import os
+import glob
+import math
+import pandas as pd
+import numpy as np
+import itertools
+import random
+import requests
 import xml.etree.ElementTree as ET
 import csv
-import sys
 import argparse
 import warnings
+
+warnings.filterwarnings('ignore')
+
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import matplotlib.patches as patches
+
+#import tensorflow_probability as tfp
+import tensorflow as tf
+from tensorflow import keras
+from keras import backend as K
+from keras.utils import np_utils
+from keras.utils.vis_utils import model_to_dot
+from keras.callbacks import EarlyStopping
+from IPython.display import SVG
+
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn import preprocessing
+from sklearn.preprocessing import LabelBinarizer, MultiLabelBinarizer, normalize
+from sklearn.preprocessing import MinMaxScaler
+
 
 from load_utils import num_labels, time_change, setup_dir, find_xml_filenames, find_csv_filenames
 
@@ -17,7 +44,7 @@ LABELS_PATH = os.environ["LABELS_PATH"]
 O_WRITE_PATH = os.environ['O_WRITE_PATH']
 U_WRITE_PATH = os.environ['U_WRITE_PATH ']
 
-def make_labels(paths, label_wr_dir = '/home/bob/storage/database/labels', fn_end = 17):
+def make_labels(paths, label_wr_dir = LABELS_PATH, fn_end = 17):
     
     for path in paths:
         label_path = path
@@ -48,14 +75,6 @@ def make_labels(paths, label_wr_dir = '/home/bob/storage/database/labels', fn_en
         print('created labels for >>> ',filename)
         
     return
-
-def find_xml_filenames(path_to_dir, suffix=".xml"):
-    filenames = os.listdir(path_to_dir)
-    filepaths = []
-    for filename in filenames:
-        if filename.endswith( suffix ):
-            filepaths.append(os.path.join(path_to_dir,filename))
-    return filepaths
 
 def main(args):
     outdir = str(args['out_dir'])
