@@ -17,19 +17,18 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.patches as patches
 
-#import tensorflow_probability as tfp
 import tensorflow as tf
 from tensorflow import keras
-from keras import backend as K
-from keras.utils import np_utils
-from keras.utils.vis_utils import model_to_dot
-from keras.callbacks import EarlyStopping
+from tensorflow.keras import backend as K
+from tensorflow.keras.utils import model_to_dot
+from tensorflow.keras.callbacks import EarlyStopping
 from IPython.display import SVG
 
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn import preprocessing
 from sklearn.preprocessing import LabelBinarizer, MultiLabelBinarizer, normalize
 from sklearn.preprocessing import MinMaxScaler
+from logging import getLogger
 
 
 from load_utils import num_labels, time_change, setup_dir, find_xml_filenames, find_csv_filenames
@@ -42,7 +41,7 @@ UMINEKO_PATH = os.environ["UMINEKO_PATH"]
 CSVWRITE_PATH = os.environ['CSVWRITE_PATH']
 LABELS_PATH = os.environ["LABELS_PATH"]
 O_WRITE_PATH = os.environ['O_WRITE_PATH']
-U_WRITE_PATH = os.environ['U_WRITE_PATH ']
+U_WRITE_PATH = os.environ['U_WRITE_PATH']
 
 def make_labels(paths, label_wr_dir = LABELS_PATH, fn_end = 17):
     
@@ -90,8 +89,8 @@ def main(args):
     label_paths_o = find_xml_filenames(label_path_o)
     label_paths_u = find_xml_filenames(label_path_u)
 
-    make_labels(label_paths_o, label_wr_dir = wrdir, fn_end = 17)
-    make_labels(label_paths_u, label_wr_dir = wrdir, fn_end = 11)
+    make_labels(label_paths_o, label_wr_dir = os.path.join(wrdir,'omizunagidori'), fn_end = 17)
+    make_labels(label_paths_u, label_wr_dir = os.path.join(wrdir,'umineko'), fn_end = 11)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

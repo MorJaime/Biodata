@@ -17,24 +17,23 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.patches as patches
 
-#import tensorflow_probability as tfp
 import tensorflow as tf
 from tensorflow import keras
-from keras import backend as K
-from keras.utils import np_utils
-from keras.utils.vis_utils import model_to_dot
-from keras.callbacks import EarlyStopping
+from tensorflow.keras import backend as K
+from tensorflow.keras.utils import model_to_dot
+from tensorflow.keras.callbacks import EarlyStopping
 from IPython.display import SVG
 
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn import preprocessing
 from sklearn.preprocessing import LabelBinarizer, MultiLabelBinarizer, normalize
 from sklearn.preprocessing import MinMaxScaler
+from logging import getLogger
 
 
 from load_utils import num_labels, time_change, setup_dir, find_xml_filenames, find_csv_filenames
 
-#Label paths (Relative)
+warnings.filterwarnings('ignore')
 
 BIODATA_PATH = os.environ['BIODATA_PATH']
 OMIZU_PATH = os.environ["OMIZU_PATH"]
@@ -42,99 +41,156 @@ UMINEKO_PATH = os.environ["UMINEKO_PATH"]
 CSVWRITE_PATH = os.environ['CSVWRITE_PATH']
 LABELS_PATH = os.environ["LABELS_PATH"]
 O_WRITE_PATH = os.environ['O_WRITE_PATH']
-U_WRITE_PATH = os.environ['U_WRITE_PATH ']
+U_WRITE_PATH = os.environ['U_WRITE_PATH']
 
 def separate_by_sensor(filename, save_folder, sensor='acc', time_format="%Y%m%d_%H:%M:%S.%f"):
     data = pd.read_csv(filename, parse_dates=["timestamp"])
     data["timestamp"] = pd.to_datetime(data["timestamp"],format=time_format)
     
+    #data['label'] = np.where(data['timestamp']=='NaN', 'unknown', data['label'])
+    data.fillna('unlabeled',inplace=True)
+    
     if sensor == 'acc':
-        new_df = data.drop(['logger_id', 'latitude', 'longitude', 'gps_status', 'gyro_x', 'gyro_y', 'gyro_z', 'mag_x', 'mag_y', 'mag_z', 'illumination', 'pressure', 'temperature'],axis=1)
+        new_df = data.drop(['logger_id', 'latitude', 'longitude', 'gps_status', 'gyro_x', 'gyro_y', 'gyro_z', 'mag_x', 'mag_y', 'mag_z', 'illumination', 'pressure', 'temperature','activity_class'],axis=1)
     else:
         new_df = data
         
     name = filename[-11:-4]
     name = name.replace('_','')
     name = name.replace('00','')
-    save_name = os.path.join(save_folder,name+'_acc.csv')
+    save_name = os.path.join(save_folder,'data_w_timestamps',name+'_acc.csv')
+    print('Saved name: ', save_name) 
     new_df.to_csv(save_name,index=False)
+    print('Saved to: ', save_name) 
     
-    data_df = pd.read_csv(save_name)
-    l = []
-    for i in range(len(data)):
-        l.append(data_df['timestamp'][i].replace('+00:00',''))
-    data_df['timestamp'] = l
+    #data_df = pd.read_csv(save_name, parse_dates=["timestamp"])
+    data_df = new_df
+    #l = []
+    #for i in range(len(data)):
+    #    l.append(data_df['timestamp'][i].replace('+00:00',''))
+    #data_df['timestamp'] = l
     #data_df['timestamp'][0] = data_df['timestamp'][0]+'.000000'
     
     #data_df = pd.to_datetime(data_df["timestamp"],format=time_format)
     
-    #data_df = time_change(data_df)
+    data_df = time_change(data_df)
     
     #data_df.to_csv(os.path.join(save_folder,name+'t_acc.csv'),index=False)
-
+    return data_df
+    
 def join_by_year(read_dir):
-    pre_df_fn = os.listdir(read_dir)[0]
-    pre_df = pd.read_csv(os.path.join(read_dir, pre_df_fn),parse_dates=["timestamp"])
-    all_bird_df = pd.DataFrame(columns = pre_df.columns)
+
     all_bird_lst = []
-    for file in os.listdir(read_dir):
+    for file in os.listdir(os.path.join(read_dir,'data_w_timestamps')):
         if file.endswith(".csv"):
-            path = os.path.join(read_dir, file)
-            print(os.path.join(read_dir, file))
+            path = os.path.join(read_dir, 'data_w_timestamps', file)
+            print(path)
             df = pd.read_csv(path,parse_dates=["timestamp"])
-            #all_bird_lst.append(df)
-            all_bird_df = all_bird_df._append(df, ignore_index=True)
+            all_bird_lst.append(df)
+            #all_bird_df = all_bird_df._append(df, ignore_index=True)
             #all_bird_df = pd.concat([all_bird_df,df])
 
-    #all_bird_df = pd.DataFrame(all_bird_lst, columns = pre_df.columns)
-    #all_bird_df = pd.concat(all_bird_lst)
+    all_bird_df = pd.concat(all_bird_lst)
 
     birds = list(all_bird_df.drop_duplicates(subset=['animal_tag'],keep = 'first')['animal_tag'])
     print(birds)
     
     all_bird_df.to_csv(os.path.join(read_dir, 'all_bird_df.csv'),index=False)
 
-    print(all_bird_df)
-
-    all_bird_df.drop(['activity_class'],axis = 1,inplace = True)
     all_bird_df.dropna(inplace = True)
     all_bird_df.reset_index(inplace = True)
     all_bird_df.drop(['index'],axis = 1,inplace = True)
     all_bird_df.to_csv(os.path.join(read_dir, 'all_bird_df_Y' + os.path.split(read_dir)[-1] +'_WL.csv'),index=False)
     
-    labels = list(all_bird_df.drop_duplicates(subset=['label'],keep = 'first')['label'])
-    print('labels_' + os.path.split(read_dir)[-1]+':')
-    print(labels)
+    labels_df = all_bird_df.drop_duplicates(subset=['label'],keep = 'first')['label']
+    labels_l = list(labels_df)
+    print('labels' + os.path.split(read_dir)[-1]+':')
+    print(labels_l)
+    labels_df.to_csv(os.path.join(read_dir, 'label_df_Y' + os.path.split(read_dir)[-1] +'.csv'),index=False)
+    
     return all_bird_df
+
+def create_acc_files(all_raw_paths,all_save_folder,bird_n):
+
+    all_bird_Y_df_l = []
+    year_df_t_l = []
+
+    for i in range(len(all_save_folder)):
+        bird_df_t_l =[]
+        for raw_path in all_raw_paths[i]:
+            print('Acc sensor df from: ', raw_path)
+            print("trying to save to: ",all_save_folder[i])
+            bird_acc_df = separate_by_sensor(raw_path,all_save_folder[i])
+            bird_df_t_l.append(bird_acc_df)
+        year_df_t = pd.concat(bird_df_t_l)
+        year_df_t_l.append(year_df_t)
+        all_bird = join_by_year(all_save_folder[i])
+        print('Joined all sensors for: ', all_save_folder[i])
+        all_bird_Y_df_l.append(all_bird)
+
+### Join all birds by year with Unix time
+
+    all_t_df = pd.concat(year_df_t_l)
+    #all_t_df.drop(['activity_class'], axis=1, inplace=True)
+    all_t_df.dropna(inplace=True)
+    all_t_df.reset_index(inplace = True)
+    all_t_df.drop(['index'],axis = 1,inplace = True)
+    #print('timechange dataframe: ')
+    #print(all_t_df)
+
+    all_df = pd.concat(all_bird_Y_df_l)
+    labels_df = pd.DataFrame(all_df.drop_duplicates(subset=['label'],keep = 'first')['label'])
+    labels_df.reset_index(inplace=True)
+    labels_df.drop(['index'],axis=1,inplace=True)
+
+    if bird_n=='omizunagidori':
+        all_t_df.to_csv(os.path.join(O_WRITE_PATH,'Omizu_all_t_df.csv'), index = False)
+        labels_df.to_csv(os.path.join(LABELS_PATH,'O_labels_df.csv'),index = False)
+    elif bird_n=='umineko':
+        all_t_df.to_csv(os.path.join(U_WRITE_PATH,'Umineko_all_t_df.csv'), index = False)
+        labels_df.to_csv(os.path.join(LABELS_PATH,'U_labels_df.csv'),index = False)
+
+def list_of_strings(arg):
+    return arg.split(',')
 
 def main(args):
     bird = args['bird']
     outdir = str(args['out_dir'])
-    year = args['year']
+    years = args['year']
     raw_path_o = os.path.join(OMIZU_PATH,'raw')
     raw_path_u = os.path.join(UMINEKO_PATH,'raw')
 
+    print("year list: ", years[0])
+
     if outdir == 'None':
-        outdir = CSVWRITE_PATH
-    
+        outdir = str(CSVWRITE_PATH)
+
+    all_save_folders = []
+    all_raw_paths = []
+
     if bird == 'omizunagidori' or bird == 'O':
-        save_folder = os.path.join(outdir, 'omizunagidori', year)
-        raw_paths = find_csv_filenames(raw_path_o, suffix = ".csv", year = year)
+        for year in years:
+            save_folder = os.path.join(outdir, 'omizunagidori', year)
+            raw_paths = find_csv_filenames(raw_path_o, suffix = ".csv", year = year)
+            all_save_folders.append(save_folder)
+            all_raw_paths.append(raw_paths)
+
+        #save_folder = os.path.join(outdir, 'omizunagidori', year)
+        #raw_paths = [find_csv_filenames(raw_path_o, suffix = ".csv", year = year)]
+        bird_n = 'omizunagidori'
     else:
         save_folder = os.path.join(outdir, 'umineko', year)
-        raw_paths = find_csv_filenames(raw_path_u, suffix=".csv", year = year)
+        raw_paths = [find_csv_filenames(raw_path_u, suffix=".csv", year = year)]
+        bird_n = 'umineko'
     
-    for path in raw_paths:
-        separate_by_sensor(path,save_folder)
-        print('path: ', path)
-        print('save folder: ', save_folder)
+    create_acc_files(all_raw_paths,all_save_folders,bird_n)
 
-    all_bird_df = join_by_year(save_folder)
+    
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-b', '--bird', help="Bird kind to extract, either omizunagidoriu/umineko (O/U)", required=True)
-    parser.add_argument('-y', '--year', help="Year to extract", required=True)
+    parser.add_argument('-y', '--year', help="Year to extract", required=True,type=list_of_strings)
     parser.add_argument('-o', '--out-dir', help="Path to the output directory")
 
     args = vars(parser.parse_args())

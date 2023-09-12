@@ -2,13 +2,17 @@
 FROM tensorflow/tensorflow:latest-gpu-py3-jupyter
 
 USER root
+RUN apt-get install -y gnupg2
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
+#RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/7fa2af80.pub
 RUN apt update && apt-get install -y \
       nfs-common \
       cifs-utils \
       rpcbind \
-      libopencv-dev \
-      python3-opencv \
-      && pip3 install opencv-python opencv-contrib-python
+      && pip install --upgrade pip
+#      libopencv-dev \
+#     python3-opencv \
+#      && pip3 install opencv-python opencv-contrib-python
 
 # -- Add User (ID: bob, PW: bob) --
 ENV USER bob

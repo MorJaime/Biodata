@@ -8,6 +8,10 @@ import random
 import requests
 import xml.etree.ElementTree as ET
 import csv
+import argparse
+import warnings
+
+warnings.filterwarnings('ignore')
 
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -15,30 +19,25 @@ import matplotlib.patches as patches
 
 import tensorflow as tf
 from tensorflow import keras
-from keras import backend as K
-from keras.utils import np_utils
-from keras.utils.vis_utils import model_to_dot
-from keras.callbacks import EarlyStopping
+from tensorflow.keras import backend as K
+from tensorflow.keras.utils import model_to_dot
+from tensorflow.keras.callbacks import EarlyStopping
 from IPython.display import SVG
-from logging import getLogger
-
-#import tensorflow_probability as tfp
-
 
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn import preprocessing
 from sklearn.preprocessing import LabelBinarizer, MultiLabelBinarizer, normalize
 from sklearn.preprocessing import MinMaxScaler
-import warnings
+from logging import getLogger
 
 warnings.filterwarnings('ignore')
 logger = getLogger(__name__)
 
-def time_change(acc_df):
-    df=acc_df['timestamp']
+def time_change(acc_df,column='timestamp'):
+    df=acc_df[column]
     df1=df.astype(np.int64)
-    acc_df['timestamp']=df1/1000000
-    acc_df['timestamp'] = acc_df['timestamp'].map(lambda x: int(x))
+    acc_df[column]=df1/1000000
+    acc_df[column] = acc_df[column].map(lambda x: int(x))
     return acc_df
 
 def setup_dir(path: str):
