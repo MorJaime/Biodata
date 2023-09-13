@@ -1,8 +1,8 @@
 import os
 import glob
 import math
-import numpy as np
 import pandas as pd
+import numpy as np
 import itertools
 import random
 import requests
@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 import csv
 import argparse
 import warnings
+import sys
 
 warnings.filterwarnings('ignore')
 
@@ -28,7 +29,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 from sklearn import preprocessing
 from sklearn.preprocessing import LabelBinarizer, MultiLabelBinarizer, normalize
 from sklearn.preprocessing import MinMaxScaler
-from logging import getLogger
+import logging
 
 
 from load_utils import num_labels, time_change, setup_dir, find_xml_filenames, find_csv_filenames
@@ -42,6 +43,8 @@ CSVWRITE_PATH = os.environ['CSVWRITE_PATH']
 LABELS_PATH = os.environ["LABELS_PATH"]
 O_WRITE_PATH = os.environ['O_WRITE_PATH']
 U_WRITE_PATH = os.environ['U_WRITE_PATH']
+
+logger = logging.getLogger(__name__)
 
 def make_labels(paths, label_wr_dir = LABELS_PATH, fn_end = 17):
     
@@ -71,7 +74,8 @@ def make_labels(paths, label_wr_dir = LABELS_PATH, fn_end = 17):
                 row = [labellist[0].text,timestampStart,timestampEnd]
                 csv_writer.writerow(row)
             
-        print('created labels for >>> ',filename)
+        #print('created labels for >>> ',filename)
+        logger.info(f">>> DONE: Created labels in: {filename}")
         
     return
 
@@ -82,7 +86,6 @@ def main(args):
     
     if outdir == "None":
         wrdir = LABELS_PATH
-        print(wrdir)
     else:
         wrdir = outdir
     

@@ -12,7 +12,7 @@ RUN apt update && apt-get install -y \
       && pip install --upgrade pip
 #      libopencv-dev \
 #     python3-opencv \
-#      && pip3 install opencv-python opencv-contrib-python
+#      && pip install opencv-python opencv-contrib-python
 
 # -- Add User (ID: bob, PW: bob) --
 ENV USER bob
@@ -44,7 +44,9 @@ VOLUME  ${HOME}/storage
 #RUN python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
 
 #RUN conda install tensorflow=2.10.*=gpu_*
-RUN pip install joblib
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+#RUN pip install joblib
 
 ENV BIODATA_PATH ${HOME}/biodata
 ENV OMIZU_PATH ${HOME}/storage/export/Omizunagidori
