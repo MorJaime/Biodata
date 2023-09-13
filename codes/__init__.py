@@ -30,4 +30,4 @@ from sklearn.preprocessing import LabelBinarizer, MultiLabelBinarizer, normalize
 from sklearn.preprocessing import MinMaxScaler
 from logging import getLogger
 
-print(">>> Done: Succesfully imported Utils module")
+print(">>> Done:")
