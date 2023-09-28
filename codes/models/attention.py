@@ -3,6 +3,9 @@ from tensorflow.keras.layers import Layer, Conv2D, BatchNormalization, concatena
 from tensorflow.keras import initializers
 import tensorflow.keras.backend as K
 
+print('Added attention files')
+
+@tf.function
 def normalize_depth_vars(depth_k, depth_v, filters):
 
     if type(depth_k) == float:
@@ -19,6 +22,7 @@ def normalize_depth_vars(depth_k, depth_v, filters):
 
 class Attention2D(Layer):
 
+    @tf.function
     def __init__(self, depth_k, depth_v, num_heads, relative=True, **kwargs):
 
         super(Attention2D, self).__init__(**kwargs)
@@ -48,7 +52,8 @@ class Attention2D(Layer):
         self.axis = -1
         
         super().__init__(**kwargs)
-        
+
+    @tf.function   
     def build(self, input_shape):
         
         self._shape = input_shape
@@ -71,6 +76,7 @@ class Attention2D(Layer):
                          
         super().build(input_shape)
 
+    @tf.function
     def call(self, inputs, **kwargs):
         if self.axis == 1:
             # If channels first, force it to be channels last for these ops
@@ -121,11 +127,13 @@ class Attention2D(Layer):
 
         return attn_out
 
+    @tf.function
     def compute_output_shape(self, input_shape):
         output_shape = list(input_shape)
         output_shape[self.axis] = self.depth_v
         return tuple(output_shape)
 
+    @tf.function
     def split_heads_2d(self, ip):
         tensor_shape = K.shape(ip)
 
@@ -149,6 +157,7 @@ class Attention2D(Layer):
 
         return split
 
+    @tf.function
     def relative_logits(self, q):
         shape = K.shape(q)
         # [batch, num_heads, H, W, depth_v]
@@ -167,6 +176,7 @@ class Attention2D(Layer):
 
         return rel_logits_h, rel_logits_w
 
+    @tf.function
     def relative_logits_1d(self, q, rel_k, H, W, transpose_mask):
         rel_logits = tf.einsum('bhxyd,md->bhxym', q, rel_k)
         rel_logits = K.reshape(rel_logits, [-1, self.num_heads * H, W, 2 * W - 1])
@@ -178,6 +188,7 @@ class Attention2D(Layer):
         rel_logits = K.reshape(rel_logits, [-1, self.num_heads, H * W, H * W])
         return rel_logits
 
+    @tf.function
     def rel_to_abs(self, x):
         shape = K.shape(x)
         shape = [shape[i] for i in range(3)]
@@ -191,6 +202,7 @@ class Attention2D(Layer):
         final_x = final_x[:, :, :L, L - 1:]
         return final_x
 
+    @tf.function
     def combine_heads_2d(self, inputs):
         # [batch, num_heads, height, width, depth_v // num_heads]
         transposed = K.permute_dimensions(inputs, [0, 2, 3, 1, 4])
@@ -203,6 +215,7 @@ class Attention2D(Layer):
         # [batch, height, width, depth_v]
         return K.reshape(transposed, ret_shape)
 
+    @tf.function
     def get_config(self):
         config = {
             'depth_k': self.depth_k,
